@@ -15,6 +15,7 @@ sudo sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_conf
 sudo sed -i -e '$aAllowUsers ben' /etc/ssh/sshd_config
 sudo restart ssh
 sudo ufw allow ssh
+sudo ufw allow 80
 sudo ufw enable
 
 # Add Elastic GPG Key and repositories including Oracle Java 8. Run installs
@@ -49,10 +50,10 @@ server {
     location / {
         proxy_pass http://localhost:5601;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
     }
 }
 EOF

@@ -1,22 +1,21 @@
-#cloud-config
-users:
-  - name: ben
-    groups: sudo
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    shell: /bin/bash
-    ssh-authorized-keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC2LdYZcjiVkdG4bmllrSoSn1AyJ1tL/6m9NHCeekqHeP5zvNc0KRcSamFRpnnv+pp2ChBLfYMCVHs1w8hbu10FxFSWnVOKCfxBVz9oBkHBRtvjlsMoHWY1Wot2aj13KrdEOysg0tRYaOH+p1rTQ+dkFSoO9KE/rfdlL2cTHfPC6ON1HaGfBoZcCd3UeIaN5PoS7G/mXatUG/m1/yLSWIC0j4w8d7QmTJXje9BnMPayAW39w4yk7L/lqtusgi2zFYZKawtUAdcqgveRBtfD+jPbrb1YO9gYIikP0Jh1kkDSim5Ay0w5PdjO3XHzxAKZ4acOvc8S0oyzcvMw/cPX/xFU5jwzaRqD1LJtkMWFU8Nh7ni71ZRmsX866Q1UJzbDNFDE/Q3MKwD1d5BkurvM3NVhqXzO6JzbOSDOLnVNY0YUSHth4xnfToITu0z95L200DA3G+D6KRnUum5JYajY6c41jwvzFdxXR25I7stHIuMOmxG+JYW/EgcZnd/j8eBMV4JhlVl5PplR+qGmhlnA1MQXdUWqej/1fMg42MMmKQ6NB64az9zFLlQ2Y5HPzDHsCnx21cVX1gFywWElpclsmukdr9VJXSzBXTi6qbk1o4llL6iMwV/WHIYSmO3Vp2PbTLuodzk9deLY/O0l+/LDYAXM3bQDLlTibKy1+udbK6PmyQ== ben@polzin.us
+#!/bin/bash
 
-runcmd:
-  - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
-  - sed -i -e '$aAllowUsers ben' /etc/ssh/sshd_config
-  - restart ssh
-  - ufw allow ssh
-  - ufw enable
-
-final_message: "System boot (via cloud-init) is COMPLETE, after $UPTIME seconds. Finished at $TIMESTAMP"
-
-#!/usr/bin/env bash
+# create user
+sudo adduser --disabled-password --gecos "" ben
+sudo gpasswd -a ben sudo
+sudo echo 'ben ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/cloud-init
+sudo mkdir /home/ben/.ssh
+sudo chmod 700 /home/ben/.ssh/
+sudo chown ben:ben /home/ben/.ssh/
+sudo cat > /home/ben/.ssh/authorized_keys << EOF
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC2LdYZcjiVkdG4bmllrSoSn1AyJ1tL/6m9NHCeekqHeP5zvNc0KRcSamFRpnnv+pp2ChBLfYMCVHs1w8hbu10FxFSWnVOKCfxBVz9oBkHBRtvjlsMoHWY1Wot2aj13KrdEOysg0tRYaOH+p1rTQ+dkFSoO9KE/rfdlL2cTHfPC6ON1HaGfBoZcCd3UeIaN5PoS7G/mXatUG/m1/yLSWIC0j4w8d7QmTJXje9BnMPayAW39w4yk7L/lqtusgi2zFYZKawtUAdcqgveRBtfD+jPbrb1YO9gYIikP0Jh1kkDSim5Ay0w5PdjO3XHzxAKZ4acOvc8S0oyzcvMw/cPX/xFU5jwzaRqD1LJtkMWFU8Nh7ni71ZRmsX866Q1UJzbDNFDE/Q3MKwD1d5BkurvM3NVhqXzO6JzbOSDOLnVNY0YUSHth4xnfToITu0z95L200DA3G+D6KRnUum5JYajY6c41jwvzFdxXR25I7stHIuMOmxG+JYW/EgcZnd/j8eBMV4JhlVl5PplR+qGmhlnA1MQXdUWqej/1fMg42MMmKQ6NB64az9zFLlQ2Y5HPzDHsCnx21cVX1gFywWElpclsmukdr9VJXSzBXTi6qbk1o4llL6iMwV/WHIYSmO3Vp2PbTLuodzk9deLY/O0l+/LDYAXM3bQDLlTibKy1+udbK6PmyQ== ben@polzin.us
+EOF
+sudo chown ben:ben /home/ben/.ssh/authorized_keys
+sudo sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i -e '$aAllowUsers ben' /etc/ssh/sshd_config
+sudo restart ssh
+sudo ufw allow ssh
+sudo ufw enable
 
 # Add Elastic GPG Key and repositories including Oracle Java 8. Run installs
 wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -

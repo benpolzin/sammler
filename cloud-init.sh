@@ -33,6 +33,7 @@ sudo apt-get -y install elasticsearch
 sudo apt-get -y install kibana
 sudo apt-get -y install logstash
 sudo apt-get -y install filebeat
+sudo /opt/kibana/bin/kibana plugin --install elastic/sense
 
 # Install nginx to use as reverse proxy
 sudo apt-get -y install nginx apache2-utils
@@ -60,34 +61,29 @@ EOF
 
 # Create certs to use for logstash and filebeat
 # Must add private key manually
+# sudo cat > /etc/pki/tls/private/logstash-forwarder.key << EOF
+#
 sudo mkdir -p /etc/pki/tls/certs
 sudo mkdir /etc/pki/tls/private
 sudo cat > /etc/pki/tls/certs/logstash-forwarder.crt << EOF
 -----BEGIN CERTIFICATE-----
-MIIEezCCA9ygAwIBAgIJAIaqehxq4H8JMAoGCCqGSM49BAMCMHUxCzAJBgNVBAYT
-AlVTMRIwEAYDVQQIDAlNaW5uZXNvdGExDTALBgNVBAcMBEh1Z28xDzANBgNVBAoM
-BlBvbHppbjEaMBgGA1UECwwRQ29sbGFib3JhdGlvbiBMYWIxFjAUBgNVBAMMDWVs
-ay5wb2x6aW4udXMwHhcNMTYwODA5MDI1NTU0WhcNMjYwODA3MDI1NTU0WjB1MQsw
-CQYDVQQGEwJVUzESMBAGA1UECAwJTWlubmVzb3RhMQ0wCwYDVQQHDARIdWdvMQ8w
-DQYDVQQKDAZQb2x6aW4xGjAYBgNVBAsMEUNvbGxhYm9yYXRpb24gTGFiMRYwFAYD
-VQQDDA1lbGsucG9semluLnVzMIICXDCCAc8GByqGSM49AgEwggHCAgEBME0GByqG
-SM49AQECQgH/////////////////////////////////////////////////////
-/////////////////////////////////zCBngRCAf//////////////////////
-///////////////////////////////////////////////////////////////8
-BEFRlT65YY4cmh+SmiGgtoVA7qLacluZsxXzuLSJkY7xCeFWGTlR7H6TexZSwL07
-sb8HNXPfiD0sNPHvRR/Ua1A/AAMVANCeiAApHLhTlsxnFzkyhKqg2mS6BIGFBADG
-hY4GtwQE6c2ePstmI5W0QpxkgTkFP7Uh+CivYGtNPbqhS1537+dZKP4dwSei/6je
-M0izwYVqQpv5fn4xwuW9ZgEYOSlqeJo7wARcil+0LH0b2Zj1RElXm0RoF6+9Fyc+
-ZiyX7nKZXvQmQMVQuQE/rQdhNTxwhqJywkCIvpR2n9FmUAJCAf//////////////
-////////////////////////////+lGGh4O/L5Zrf8wBSPcJpdA7tcm4iZxHrrtv
-tx6ROGQJAgEBA4GGAAQAhzNqvwUHWw9fWhwoslVR4bW9wv1nLPn/l5YmmcHT4oAc
-LtNWtweTjfwq7ESJsQHpRe+UEVt+N6BE+wy8wMm//ToAvYyCafk16H0Lo+CnbguE
-80eWgmFxmXmb4oRQse83gSOyaG7j0YN3n3I5kmwZeGW/9CFem828OAvz2K+fFI4J
-ZdujUDBOMB0GA1UdDgQWBBSra60PrydGgpueqyIpWGKsmpKFXDAfBgNVHSMEGDAW
-gBSra60PrydGgpueqyIpWGKsmpKFXDAMBgNVHRMEBTADAQH/MAoGCCqGSM49BAMC
-A4GMADCBiAJCALdKwhYSUREXYW0SLkIixT1RDKqdF8C4Y2JvfGUdMRtkrWBPdAOb
-eTnZALdI02g0p9tTv/Mr6VvUaEWXg50HVnooAkIAzbEkFXLNCITm/YUXYrOpRfst
-jAYxcnHQdQ5mQNirZxZ0xQQ9evQbYeWyGh4mAux+JmYlVrvwxAAcnc2bzzBBP+4=
+MIIDAzCCAeugAwIBAgIJAMjjdNvQhtuGMA0GCSqGSIb3DQEBCwUAMBgxFjAUBgNV
+BAMMDWVsay5wb2x6aW4udXMwHhcNMTYwODExMDMzNTQxWhcNMjYwODA5MDMzNTQx
+WjAYMRYwFAYDVQQDDA1lbGsucG9semluLnVzMIIBIjANBgkqhkiG9w0BAQEFAAOC
+AQ8AMIIBCgKCAQEAowbxNVH+zl/eeEL1zbJg1s/+QHBcHO2B++eHB+H/xM0ybicV
+cvN+RXmne+0kMMOS2xMHVCs5CgRNopAwF9lGRYsdA6yPAjWyO26BI9XnoZzRnOME
+r8a8KV2+XYRJ35FUCqlzbzfA7Bh7KsmU2NYrPcShPg9wJ0ObdP2aSGz6qzJq1Asu
+vQxQAGrZYw3vD35nOUM9d07YfmoA7GrOFschTplQny3aGxc2Btc677gDIifXACCB
+dm8Rc3v39NREmxGKnil/xlGTjQnaVELbYZzXv6CCD2tPPTIRg0Psox/aXqZe7QXe
+/BTlgi4ZKUc6TLd2z7/iqVniD/L2mHNrNlUe1wIDAQABo1AwTjAdBgNVHQ4EFgQU
+ZyqyDtv2WrKDHwxWF3SuRgY1QKgwHwYDVR0jBBgwFoAUZyqyDtv2WrKDHwxWF3Su
+RgY1QKgwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAhA30xrcnGjHo
+D+otPi8BOvxEH/tOHOZ+NmHcXXYXJKfHg+416Y8/C78vX3x9ylwIEOq6Zq0ufMIV
+3WbhEyAUyz+81ZuublHI+HaHE+MCIt13jDrFu9JqyqbQK0NS27r8XxcHEGky/7hV
+/0gCFIKdBDMnyQu9/aUhGN0SjNpbZO7ApcFbOSJf9rXIY52tF9aVb9wXFPH2apWy
+LXgB+qeuZP4Rk1bXIkd/E1qb9klcRzWEIdmC0Qyjd6aw83sVldbLd2A9apiwazIl
+kLNgZK2efs2IiG7wG6qS2tJ723TTuyQa2B9c+QRPzit8oLItKqRi+XnLdCUj8L2z
+KxFhK/pIew==
 -----END CERTIFICATE-----
 EOF
 
@@ -164,15 +160,15 @@ EOF
 sudo cat > /etc/logstash/conf.d/01-beats-input.conf << EOF
 input {
   beats {
+    port => 5044
+    ssl => true
+    ssl_certificate => "/etc/pki/tls/certs/logstash-forwarder.crt"
+    ssl_key => "/etc/pki/tls/private/logstash-forwarder.key"
     codec => multiline {
       pattern => "^\d{6,12}\.\d{3}\s|%{TIME}\.\d{3}"
       negate => true
       what => previous
     }
-    port => 5044
-    ssl => true
-    ssl_certificate => "/etc/pki/tls/certs/logstash-forwarder.crt"
-    ssl_key => "/etc/pki/tls/private/logstash-forwarder.key"
   }
 }
 EOF
@@ -207,7 +203,7 @@ sudo service nginx restart
 sudo service elasticsearch restart
 sudo service kibana restart
 sudo service logstash restart
-sudo serivce filebeat restart
+sudo service filebeat restart
 sudo update-rc.d elasticsearch defaults 95 10
 sudo update-rc.d kibana defaults 95 10
 sudo update-rc.d filebeat defaults 95 10
